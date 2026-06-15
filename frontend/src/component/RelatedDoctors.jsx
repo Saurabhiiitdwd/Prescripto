@@ -1,13 +1,16 @@
 import React from 'react'
-
-import { useNavigate } from 'react-router-dom'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../context/AppContext'
+import { useNavigate } from 'react-router-dom';
 
-function TopDoctors() {
-  const navigate = useNavigate()
-  const { doctors } = useContext(AppContext)
-
+function RelatedDoctors({docId, speciality}) {
+  const {doctors}= useContext(AppContext); 
+  const [relatedDocs, setRelatedDocs] = useState([]);
+  const navigate = useNavigate();
+  useEffect(()=>{
+    const relatedDocs = doctors.filter(doc => doc.speciality === speciality && doc._id !== docId);
+    setRelatedDocs(relatedDocs);
+  }, [docId, speciality, doctors])
   return (
     <div className='flex flex-col items-center gap-4 py-16 text-gray-900 md:mx-10'>
       <h1 className='text-3xl font-medium'>Top Doctors to Book</h1>
@@ -15,7 +18,7 @@ function TopDoctors() {
         Discover our top-rated doctors and book your appointment with confidence.
       </p>
       <div className='w-full grid grid-cols-auto gap-4 pt-4 gap-y-6 px-3 sm:px-0'>
-        {doctors.slice(0, 10).map((item, index) =>(
+        {relatedDocs.slice(0, 5).map((item, index) =>(
           <div className='border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all-duration-500' key={index} onClick={() =>{ navigate(`/appointment/${item._id}`);
           scrollTo(0, 0)}}>
             <img className='bg-blue-50' src={item.image} alt={item.name} />
@@ -30,11 +33,8 @@ function TopDoctors() {
           </div>
         ))}
       </div>
-      <button onClick={() => {navigate('/doctors'); scrollTo(0, 0)}} className='bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300 cursor-pointer'>
-        more
-      </button>
     </div>
   )
 }
 
-export default TopDoctors
+export default RelatedDoctors
