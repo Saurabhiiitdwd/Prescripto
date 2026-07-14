@@ -1,7 +1,17 @@
 import React from 'react'
+import { useContext } from 'react';
 import { useState } from 'react';
+import { AppContext } from '../context/AppContext';
+import axios from 'axios'
+import { toast } from 'react-toastify';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 function Login() {
+
+  const {backendUrl, token, setToken}= useContext(AppContext)
+  const navigate= useNavigate()
   const [state, setState]= useState('Sign Up');
 
   const [email, setEmail]= useState('');
@@ -10,7 +20,41 @@ function Login() {
 
   const onSubmitHandler= async(event)=>{
     event.preventDefault();     // prevent default form submission behavior
+
+    try{
+
+      if(state==='Sign Up'){
+        const {data}= await axios.post(backendUrl + '/api/user/register', {name, password, email})
+        if(data.success){
+          localStorage.setItem('token', data.token)
+          setToken(data.token)
+        }
+        else{
+          toast.error(data.message)
+        }
+      }
+      else{
+        const {data}= await axios.post(backendUrl + '/api/user/login', {password, email})
+        if(data.success){
+          localStorage.setItem('token', data.token)
+          setToken(data.token)
+        }
+        else{
+          toast.error(data.message)
+        }
+      }
+
+    }
+    catch(err){
+      toast.error(err.message)
+    }
   }
+
+  useEffect(()=>{
+    if(token){
+      navigate('/')
+    }
+  }, [token])
 
   return (
     <form onSubmit={onSubmitHandler} className= 'min-h-[80vh] flex items-center'>
@@ -32,7 +76,7 @@ function Login() {
           <p>Password</p>
           <input className='border border-zinc-300 rounded w-full p-2 mt-1'  type='password' onChange={(e)=> setPassword(e.target.value)} value={password} />
         </div>
-        <button className='bg-primary text-white w-full py-2 rounded-md text-base'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</button>
+        <button type='submit' className='bg-primary text-white w-full py-2 rounded-md text-base'>{state === 'Sign Up' ? 'Create Account' : 'Login'}</button>
         {
           state === 'Sign Up' ? (
             <p className='text-sm text-center'>

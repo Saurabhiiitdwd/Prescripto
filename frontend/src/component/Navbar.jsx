@@ -1,11 +1,21 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { assets } from '../assets/assets'
+import { useContext } from 'react';
+import { AppContext } from '../context/AppContext';
 
 function Navbar() {
   const navigate= useNavigate();
+
+  const {token, setToken}= useContext(AppContext)
+
   const [showMenu, setShowMenu]= useState(false);
-  const [token, setToken]= useState(true);
+
+  const logout=()=>{
+    setToken(false)
+    localStorage.removeItem('token')
+  }
+
   return (
     <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400'>
       <img onClick={() => navigate('/')} className='w-44 cursor-pointer' src={assets.logo} alt=""/>
